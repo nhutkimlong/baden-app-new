@@ -59,115 +59,135 @@ const POIMarkers = React.memo(({ pois, currentLang, onMarkerClick }: {
   })
 })
 
-// Map Controls Component
-const MapControls = ({ onLocate, onSearch, onTutorial, onContact, onToggleTiles, tileProvider, topOffsetPx }: {
+// Unified Map Toolbar Component
+const MapToolbar = ({
+  onLocate,
+  onSearch,
+  onTutorial,
+  onDirections,
+  onToggleTiles,
+  tileProvider,
+  topOffsetPx,
+}: {
   onLocate: () => void
   onSearch: () => void
   onTutorial: () => void
-  onContact: () => void
+  onDirections: () => void
   onToggleTiles: () => void
   tileProvider: 'google' | 'osm'
   topOffsetPx?: number
 }) => {
-  return (
-    <div className="map-controls-container absolute right-3 md:right-4 z-[1000] flex-col gap-2 hidden md:flex" style={{ top: topOffsetPx ?? 12 }}>
-      <button 
-        onClick={onLocate}
-        className="map-action-button" 
-        title="Định vị của tôi"
-      >
-        <Navigation className="w-5 h-5 text-blue-600" />
-      </button>
-      <button 
-        onClick={onSearch}
-        className="map-action-button" 
-        title="Tìm kiếm"
-      >
-        <Search className="w-5 h-5 text-purple-600" />
-      </button>
-      <button 
-        onClick={onTutorial}
-        className="map-action-button" 
-        title="Xem hướng dẫn"
-      >
-        <MapPin className="w-5 h-5 text-yellow-500" />
-      </button>
-      <button 
-        onClick={onToggleTiles}
-        className="map-action-button" 
-        title={tileProvider === 'google' ? 'Đổi sang OpenStreetMap' : 'Đổi sang Google Vệ tinh'}
-      >
-        <Globe className="w-5 h-5 text-green-600" />
-      </button>
-    </div>
-  )
-}
-
-// Zoom Controls Component
-const ZoomControls = () => {
   const map = useMap()
 
-  return (
-    <div className="zoom-controls-desktop hidden md:flex flex-col bg-white rounded-full shadow-md overflow-hidden z-[1001]">
-      <button 
-        onClick={() => map.zoomIn()}
-        className="map-action-button text-gray-700 hover:bg-gray-100 p-2.5 border-b border-gray-200" 
-        title="Phóng to"
-      >
-        <span className="text-lg">+</span>
-      </button>
-      <button 
-        onClick={() => map.zoomOut()}
-        className="map-action-button text-gray-700 hover:bg-gray-100 p-2.5" 
-        title="Thu nhỏ"
-      >
-        <span className="text-lg">−</span>
-      </button>
-    </div>
-  )
-}
+  const desktopActions = [
+    {
+      key: 'locate',
+      onClick: onLocate,
+      title: 'Định vị của tôi',
+      icon: <Navigation className="w-5 h-5 text-blue-600" />,
+    },
+    {
+      key: 'search',
+      onClick: onSearch,
+      title: 'Tìm kiếm',
+      icon: <Search className="w-5 h-5 text-purple-600" />,
+    },
+    {
+      key: 'tutorial',
+      onClick: onTutorial,
+      title: 'Xem hướng dẫn',
+      icon: <MapPin className="w-5 h-5 text-yellow-500" />,
+    },
+    {
+      key: 'toggle',
+      onClick: onToggleTiles,
+      title:
+        tileProvider === 'google'
+          ? 'Đổi sang OpenStreetMap'
+          : 'Đổi sang Google Vệ tinh',
+      icon: <Globe className="w-5 h-5 text-green-600" />,
+    },
+    {
+      key: 'zoomIn',
+      onClick: () => map.zoomIn(),
+      title: 'Phóng to',
+      icon: <span className="text-lg">+</span>,
+    },
+    {
+      key: 'zoomOut',
+      onClick: () => map.zoomOut(),
+      title: 'Thu nhỏ',
+      icon: <span className="text-lg">−</span>,
+    },
+  ]
 
-// Floating Action Buttons (Mobile)
-const FloatingActionButtons = ({ onSearch, onDirections, onLocate, onTutorial }: {
-  onSearch: () => void
-  onDirections: () => void
-  onLocate: () => void
-  onTutorial: () => void
-}) => {
+  const mobileActions = [
+    {
+      key: 'search',
+      onClick: onSearch,
+      title: 'Tìm kiếm',
+      className: 'bg-white hover:bg-gray-100 text-gray-700',
+      icon: <Search className="w-5 h-5" />,
+    },
+    {
+      key: 'directions',
+      onClick: onDirections,
+      title: 'Tìm đường',
+      className: 'bg-white hover:bg-gray-100 text-green-600',
+      icon: <Route className="w-5 h-5" />,
+    },
+    {
+      key: 'locate',
+      onClick: onLocate,
+      title: 'Định vị của tôi',
+      className: 'bg-blue-600 hover:bg-blue-700 text-white',
+      icon: <Navigation className="w-5 h-5" />,
+    },
+    {
+      key: 'tutorial',
+      onClick: onTutorial,
+      title: 'Hướng dẫn sử dụng',
+      className: 'bg-white hover:bg-gray-100 text-yellow-500',
+      icon: <MapPin className="w-5 h-5" />,
+    },
+  ]
+
   return (
-    <div
-      className="floating-action-buttons md:hidden absolute right-4 z-[1000] flex flex-col gap-3"
-      style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 84px)' }}
-    >
-      <button 
-        onClick={onSearch}
-        className="fab bg-white hover:bg-gray-100 text-gray-700" 
-        title="Tìm kiếm"
+    <>
+      {/* Desktop Toolbar */}
+      <div
+        className="hidden md:flex absolute right-3 md:right-4 z-[1000] flex-col gap-2"
+        style={{ top: topOffsetPx ?? 12 }}
       >
-        <Search className="w-5 h-5" />
-      </button>
-      <button 
-        onClick={onDirections}
-        className="fab bg-white hover:bg-gray-100 text-green-600" 
-        title="Tìm đường"
+        {desktopActions.map((action) => (
+          <button
+            key={action.key}
+            onClick={action.onClick}
+            className="map-action-button"
+            title={action.title}
+          >
+            {action.icon}
+          </button>
+        ))}
+      </div>
+
+      {/* Mobile Toolbar */}
+      <div
+        className="md:hidden absolute right-4 z-[1000] flex flex-col gap-3"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 84px)' }}
       >
-        <Route className="w-5 h-5" />
-      </button>
-      <button 
-        onClick={onLocate}
-        className="fab bg-blue-600 hover:bg-blue-700 text-white" 
-        title="Định vị của tôi"
-      >
-        <Navigation className="w-5 h-5" />
-      </button>
-      <button 
-        onClick={onTutorial}
-        className="fab bg-white hover:bg-gray-100 text-yellow-500" 
-        title="Hướng dẫn sử dụng"
-      >
-        <MapPin className="w-5 h-5" />
-      </button>
-    </div>
+        {mobileActions.map((action) => (
+          <button
+            key={action.key}
+            onClick={action.onClick}
+            className={cn('fab', action.className)}
+            title={action.title}
+          >
+            {action.icon}
+          </button>
+        ))}
+      </div>
+    </>
   )
 }
 
@@ -1112,7 +1132,6 @@ const MapPage = () => {
     toggleRouteInputs,
     openTutorial,
     closeTutorial,
-    openContact,
     closeContact,
     openDescentChoice,
     closeDescentChoice
@@ -1233,9 +1252,6 @@ const MapPage = () => {
     openTutorial()
   }
 
-  const handleContact = () => {
-    openContact()
-  }
 
   const handleToggleTiles = () => {
     setTileProvider(prev => prev === 'google' ? 'osm' : 'google')
@@ -1953,19 +1969,16 @@ const MapPage = () => {
             />
           )}
           
-          {/* Map Controls */}
-          <MapControls 
+          {/* Map Toolbar */}
+          <MapToolbar
             onLocate={handleLocate}
             onSearch={handleSearch}
             onTutorial={handleTutorial}
-            onContact={handleContact}
+            onDirections={handleDirections}
             onToggleTiles={handleToggleTiles}
             tileProvider={tileProvider}
             topOffsetPx={isTopBarVisible ? 112 : (isRouteInputsVisible ? 112 : 16)}
           />
-          
-          {/* Zoom Controls */}
-          <ZoomControls />
 
           {/* POI Markers */}
           <POIMarkers 
@@ -1992,13 +2005,6 @@ const MapPage = () => {
         </MapContainer>
         )}
 
-        {/* Floating Action Buttons (Mobile) */}
-        <FloatingActionButtons 
-          onSearch={handleSearch}
-          onDirections={handleDirections}
-          onLocate={handleLocate}
-          onTutorial={handleTutorial}
-        />
         {/* Route Inputs overlay inside map area */}
         <div className={cn(
           "absolute left-0 right-0 z-[1001] p-3",
