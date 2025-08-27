@@ -2,13 +2,25 @@ import { Link, useLocation } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { Map, Home, BookOpen, Mountain, Phone } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import { useEffect } from 'react'
 
 type MobileBottomNavProps = {
   visible?: boolean
 }
 
+const NAV_HEIGHT = 56
+
 const MobileBottomNav = ({ visible = false }: MobileBottomNavProps) => {
   const location = useLocation()
+
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.style.setProperty(
+        '--mobile-bottom-nav-height',
+        visible ? `${NAV_HEIGHT}px` : '0px'
+      )
+    }
+  }, [visible])
 
   const items = [
     { to: '/', label: 'Trang chủ', icon: Home },
@@ -33,7 +45,10 @@ const MobileBottomNav = ({ visible = false }: MobileBottomNavProps) => {
       visible ? "translate-y-0" : "translate-y-full"
     )}>
       <div className="w-full">
-        <div className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-t border-gray-200 shadow-lg" style={{height: 56}}>
+        <div
+          className="bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-t border-gray-200 shadow-lg"
+          style={{ height: 'var(--mobile-bottom-nav-height)' }}
+        >
           <ul className="grid grid-cols-5 w-full h-full">
             {items.map((item) => {
               const Icon = item.icon
